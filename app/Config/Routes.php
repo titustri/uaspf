@@ -10,3 +10,6 @@ $routes->get('/', 'Home::index');
 $routes->get('dashboard', 'Dashboard::index');
 $routes->get('addtransaksi', 'Transaksi::index');
 $routes->get('barang', 'Transaksi::barang');
+$routes->get('bayar', 'Bayar::index');
+
+$routes->post('addtransaksi', 'Transaksi::tambah');
