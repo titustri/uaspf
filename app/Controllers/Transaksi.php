@@ -14,10 +14,26 @@ class Transaksi extends BaseController
         // Get Data detail transaksi
         $detailTransaksi = new Detail_transaksiModel();
         $data['detail_transaksi'] = $detailTransaksi->join('transaksi', 'detail_transaksi.transaksi_id = transaksi.transaksi_id')->join('barang', 'detail_transaksi.barang_id = barang.barang_id')->where('transaksi.status', 0)->findAll();
-
+        // dd($data['detail_transaksi']);
         // Gete Data transaksi
         $transaksi = new TransaksiModel();
         $data['transaksi'] = $transaksi->where('status', 0)->findAll();
+        $data['condition'] = $transaksi->where('status', 0)->builder()->countAllResults();
+
+        // dd($data['condition']);
+        if($data['condition'] == 0){
+            $transaksi->insert([
+                "customer_id" => 1,
+                "total_transaksi" => 0,
+                "status" => 0
+            ]);
+        }
+        $idTransaksi = $transaksi->builder()->select('transaksi_id')->orderBy('transaksi_id','DESC')->limit(1)->get()->getResultArray();
+        $data['transaksi_id'] = intval($idTransaksi[0]['transaksi_id']);
+        $totalTransaksi = $transaksi->select('total_transaksi')->where('transaksi_id',$data['transaksi_id'])->findAll();
+        $data['total_transaksi'] = intval($totalTransaksi[0]['total_transaksi']);
+
+        // dd($data['transaksi_id']);
         return view('frontend/listtotalbarang', $data);
     }
     public function barang(): string
@@ -32,17 +48,43 @@ class Transaksi extends BaseController
     {
         // Get data detail transaksi
         $detailTransaksi = new Detail_transaksiModel();
-        $data['detail_transaksi'] = $detailTransaksi->join('transaksi', 'detail_transaksi.transaksi_id = transaksi.transaksi_id')->join('barang', 'detail_transaksi.barang_id = barang.barang_id')->where('transaksi.status', 0)->findAll();
         $transaksi = new TransaksiModel();
+        $barang = new BarangModel();
+
         $data['transaksi'] = $transaksi->where('status', 0)->findAll();
+        $transaksiid = $transaksi->where('status', 0)->select('transaksi_id')->findAll();
+        $data['transaksi_id'] = intval($transaksiid[0]["transaksi_id"]);
 
-        // Check & create existing transaksi
-        // $transaksi = new TransaksiModel();
-        // $check = $transaksi->where('status', 1)->countAllResult();
-        // dd($check);
+        $harga = $barang->where('barang_id', $this->request->getPost('barangid'))->select('harga')->find(); 
+        $totalHarga = intval($harga[0]["harga"]) * $this->request->getPost('jumlah');
+        // dd(intval($data['transaksi_id'][0]["transaksi_id"]));
+        
+        $detailTransaksi->insert([
+            "transaksi_id" => $data['transaksi_id'],
+            "barang_id" => $this->request->getPost('barangid'),
+            "jumlah_satuan" => $this->request->getPost('jumlah'),
+            "total_harga" => $totalHarga
+        ]);
 
-        // Insert data detail transaksi
-        $barang = $this->request->getPost('barangid');
+        $totalTransaksi = $detailTransaksi->where('transaksi_id',$data['transaksi_id'])->builder()->selectsum('total_harga')->get()->getResultArray();
+        $intTotalTransaksi = $totalTransaksi[0]["total_harga"];
+        // dd($intTotalTransaksi);
+        
+        $transaksi->where('transaksi_id',$data['transaksi_id'])->set([
+            "total_transaksi" => $intTotalTransaksi,
+        ])->update();
+
+        $data['total_transaksi'] = intval($intTotalTransaksi);
+        $data['detail_transaksi'] = $detailTransaksi->join('transaksi', 'detail_transaksi.transaksi_id = transaksi.transaksi_id')->join('barang', 'detail_transaksi.barang_id = barang.barang_id')->where('transaksi.status', 0)->findAll();
         return view('frontend/listtotalbarang', $data);
+    }
+
+    public function cancel() 
+    {
+        $id = intval($this->request->getPost('id'));
+        // dd($id);
+        $transaksi = new TransaksiModel();
+        $transaksi->builder()->where('transaksi_id', $id)->delete();
+        return redirect()->to('dashboard');
     }
 }
