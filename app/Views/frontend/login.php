@@ -37,11 +37,13 @@
               <h2>Masuk Kasir</h2>
               <p>Untuk akses semua fitur</p>
             </div>
+            <form action="<?= base_url('proses-login'); ?>" method="post" id="form-login">
             <div class="input-group mb-3">
               <input
                 type="text"
                 class="form-control form-control-lg bg-light fs-6"
                 placeholder="Username"
+                name="username"
               />
             </div>
             <div class="input-group mb-1">
@@ -49,27 +51,51 @@
                 type="password"
                 class="form-control form-control-lg bg-light fs-6"
                 placeholder="Password"
+                name="password"
               />
             </div>
             <div class="input-group mb-5 d-flex justify-content-between">
-              <div class="form-check">
-                <input
-                  type="checkbox"
-                  class="form-check-input"
-                  id="formCheck"
-                />
-                <label for="formCheck" class="form-check-label text-secondary"
-                  ><small>Ingat saya</small></label
-                >
-              </div>
             </div>
             <div class="input-group mb-3">
-              <button class="btn btn-lg btn-primary w-100 fs-6">Masuk</button>
+              <button class="btn btn-lg btn-primary w-100 fs-6" type="submit" id="btn-login">Masuk</button>
             </div>
+            </form>
             <div class="input-group mb-3"></div>
           </div>
         </div>
       </div>
     </div>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.12.4/dist/sweetalert2.all.min.js"></script>
+    <script type="text/javascript">
+    $("#form-login").submit(function (e) {
+      e.preventDefault();
+      $("#btn-login").prop('disabled', true);
+
+      jQuery.ajax({
+        url: $("#form-login").attr('action'),
+        type: $("#form-login").attr('method'),
+        data: $("#form-login").serialize(),
+        dataType: 'json',
+        complete: function(xhr, textStatus) {
+          $("#btn-login").prop('disabled', false);
+        },
+        success: function(data, textStatus, xhr) {
+          if (data.success) {
+            window.location.href = '<?= base_url('dashboard'); ?>';
+          } else {
+            Swal.fire('Gagal', data.message, 'error');
+
+          }
+        },
+        error: function(xhr, textStatus, errorThrown) {
+          Swal.fire('Gagal', 'Terjadi kesalahan pada server, silahkan coba lagi', 'error');
+          console.log(textStatus);
+        }
+      });
+      
+    });
+    </script>
   </body>
 </html>
+

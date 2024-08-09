@@ -18,6 +18,7 @@
     <main class="table" id="customers_table">
       <section class="table__header">
         <h1>List Transaksi</h1>
+        <a href="login/logout" class="btn btn-danger">Logout</a>
       </section>
       <section class="table__body" style="height: 75%;">
         <table>
@@ -42,10 +43,10 @@
               <td><?php echo $data['transaksi_id'] ?></td>
               <td><?php echo $data['created_at'] ?></td>
               <td><?php echo $data['nama_customer'] ?></td>
-              <td><strong><?php echo rupiah($data['total_harga']) ?></strong></td>
+              <td><strong><?php echo rupiah($data['total_transaksi']) ?></strong></td>
               <td>
-                <button class="btn btn-warning">Lihat</button>
-                <button class="btn mx-2 btn-danger">Hapus</button>
+                <a href="/detail/<?= $data['transaksi_id'] ?>" class="btn btn-warning">Lihat</a>
+                <a class="btn mx-2 btn-danger" onclick="hapus(<?= $data['transaksi_id'] ?>)">Hapus</a>
               </td>
             </tr>
             <?php endforeach ?>
@@ -56,5 +57,24 @@
           <button class="btn btn-success mx-auto"><a href="/addtransaksi" style="color: inherit; text-decoration: inherit;">Tambah Transaksi</a></button>
       </div>
     </main>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.12.4/dist/sweetalert2.all.min.js"></script>
+    <script type="text/javascript">
+      function hapus(id) {
+        Swal.fire({
+          title: 'Apakah Anda Yakin?',
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonColor: '#3085d6',
+          cancelButtonColor: '#d33',
+          confirmButtonText: 'Ya, Hapus!'
+        }).then((result) => {
+          if (result.isConfirmed) {
+            location.href = '/hapus/' + id;
+          }
+        });
+      }
+    </script>
   </body>
 </html>

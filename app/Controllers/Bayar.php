@@ -11,12 +11,12 @@ class Bayar extends BaseController
         return view('frontend/transaksiselesai');
     }
 
-    public function bayar(): string
+    public function bayar($id, $customer = 1): string
     {
-        $id = intval($this->request->getPost('id'));
         $transaksi = new TransaksiModel;
         $transaksi->where('transaksi_id',$id)->set([
-            "status" => 1
+            "status" => 1,
+            "customer_id" => $customer,
         ])->update();
 
         return view('frontend/transaksiselesai');
