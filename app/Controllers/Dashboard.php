@@ -19,6 +19,6 @@ class Dashboard extends BaseController
     {
         $transaksi = new TransaksiModel();
         $data['transaksi'] = $transaksi->join('customer', 'transaksi.customer_id = customer.customer_id')->join('detail_transaksi', 'transaksi.transaksi_id = detail_transaksi.transaksi_id')->findAll();
-        dd($transaksi);
+        //dd($transaksi);
     }
 }

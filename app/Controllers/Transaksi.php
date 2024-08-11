@@ -88,9 +88,9 @@ class Transaksi extends BaseController
         return view('frontend/listtotalbarang', $data);
     }
 
-    public function cancel() 
+    public function cancel($id) 
     {
-        $id = intval($this->request->getPost('id'));
+        // $id = intval($this->request->getPost('id'));
         // dd($id);
         
         $this->transaksi->builder()->where('transaksi_id', $id)->delete();
